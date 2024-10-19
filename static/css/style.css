@@ -1,0 +1,133 @@
+/* /static/css/style.css */
+*{
+    margin:0;
+    padding:0;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-image: url(../images/img2.jpg);
+    background-position: center fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+h3,p{
+    color:rgb(252, 249, 249);
+}
+nav{
+    background-color: rgb(5, 5, 5);
+    color: rgb(247, 241, 241);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+li,ul{
+    display: inline-block;
+}
+ul{
+    margin-left: 0;
+    display:flex;
+    gap:30px;
+}
+li{
+    color: rgb(248, 248, 248);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    word-spacing:20px;
+}
+li a{
+    cursor: pointer;
+    list-style: none;
+    text-decoration: none;
+    color: white;
+    word-spacing: 50px;
+    letter-spacing: 2px;
+    transition: 0.4s ease-in-out;
+    font-weight: bold;
+    display: block;
+}
+li a:hover{
+    color: rgb(139, 95, 27);
+    box-shadow: inset;
+}
+.container {
+    max-width: 600px;
+    padding: 20px;
+    margin:0 auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top:50px;
+}
+
+h1, h2 {
+    color: #333;
+    text-align:center;
+    margin-top:10px;
+}
+
+label {
+    display: inline;
+    margin-top:20px;
+    color: #0e0c0c;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="tel"] {
+    width: 100%;
+    padding: 9px 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: black;
+    margin-top:10px;
+}
+
+button {
+    display: inline-block;
+    background-color: #050505;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left:240px;
+    text-align: center;
+    align-items: center;
+    margin-bottom:10px;
+    margin-top:10px;
+    font-size: large;
+}
+
+button:hover {
+    background-color: #7a4010;
+}
+
+p{
+    color: #050505;
+    font-size: larger;
+    text-align: center;
+    font-weight: bold;
+    margin-top:5px;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 1000;
+    display: none; /* Initially hidden */
+}
+
+.popup p {
+    margin: 0;
+}
+
+
+
+

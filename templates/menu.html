@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+</head>
+<body>
+    <div class="background-image"></div>
+    <div class="header">
+        <nav>
+            <h3>🛎️Kasata Restaurant</h3>
+        </nav>
+    </div>
+    <center><h2 id="menuheading">Menu</h2></center>
+    <div class="menu">
+        <div class="starters">
+            <table>
+                <th colspan="2">Starters</th>
+                <tr>
+                    <td>Paneer Tikka</td>
+                    <td>&#8377; 180</td>
+                </tr>
+                <tr>
+                    <td>Gobi 65</td>
+                    <td>&#8377; 165</td>
+                </tr>
+                <tr>
+                    <td>Veg Pakoda</td>
+                    <td>&#8377; 160</td>
+                </tr>
+                <tr>
+                    <td>Mirchi Bajji</td>
+                    <td>&#8377; 155</td>
+                </tr>
+                <tr>
+                    <td>Chilli Gobi</td>
+                    <td>&#8377; 170</td>
+                </tr>
+                <tr>
+                    <td>Baby Corn Manchurian</td>
+                    <td>&#8377; 185</td>
+                </tr>
+                <tr>
+                    <td>Chilli Paneer</td>
+                    <td>&#8377; 190</td>
+                </tr>
+            </table>
+        </div>
+        <div class="maincourse">
+            <table>
+                <th colspan="2">Main Course</th>
+                <tr>
+                    <td>Veg Fried Rice</td>
+                    <td>&#8377; 340</td>
+                </tr>
+                <tr>
+                    <td>Schezwan Fried Rice</td>
+                    <td>&#8377; 350</td>
+                </tr>
+                <tr>
+                    <td>Veg Biriyani</td>
+                    <td>&#8377; 370</td>
+                </tr>
+                <tr>
+                    <td>Paneer Biriyani</td>
+                    <td>&#8377; 390</td>
+                </tr>
+                <tr>
+                    <td>Mushroom Biriyani</td>
+                    <td>&#8377; 385</td>
+                </tr>
+                <tr>
+                    <td>Veg Noodles</td>
+                    <td>&#8377; 360</td>
+                </tr>
+                <tr>
+                    <td>Schezwan Noodles</td>
+                    <td>&#8377; 370</td>
+                </tr>
+                <tr>
+                    <td>Veg Pulav</td>
+                    <td>&#8377; 340</td>
+                </tr>
+                <tr>
+                    <td>Kashmiri Pulav</td>
+                    <td>&#8377; 370</td>
+                </tr>
+                <tr>
+                    <td>Sambar Rice</td>
+                    <td>&#8377; 280</td>
+                </tr>
+                <tr>
+                    <td>Curd Rice</td>
+                    <td>&#8377; 210</td>
+                </tr>
+            </table>
+        </div>
+        <div class="chats">
+            <table>
+                <th colspan="2">Chats</th>
+                <tr>
+                    <td>Samosa</td>
+                    <td>&#8377; 120</td>
+                </tr>
+                <tr>
+                    <td>Pani Poori</td>
+                    <td>&#8377; 170</td>
+                </tr>
+                <tr>
+                    <td>Masala Puri</td>
+                    <td>&#8377; 160</td>
+                </tr>
+                <tr>
+                    <td>Pav Baaji</td>
+                    <td>&#8377; 155</td>
+                </tr>
+                <tr>
+                    <td>Bhel Puri</td>
+                    <td>&#8377; 160</td>
+                </tr>
+                <tr>
+                    <td>Vada Pav</td>
+                    <td>&#8377; 165</td>
+                </tr>
+                <tr>
+                    <td>Raj Kachori - Best Seller</td>
+                    <td>&#8377; 190</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <button onclick="window.location.href='/'">Back to Home</button>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            
+        }
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("../static/images/img2.jpg") no-repeat center center/cover;
+            filter: blur(8px);
+            z-index: -1;
+        }
+        body {
+            height: 100%;
+        }
+        h3{
+            font-size: 900;
+        }
+        nav{
+            background-color: #7a4010;
+            color: rgb(247, 241, 241);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;}
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            position: relative;
+            z-index: 1;
+            color: whitesmoke;
+            text-align: center;
+            font-style:normal;
+            font-weight: bold;
+            font-size: larger;
+            
+        }
+        .menu::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+        }
+        #menuheading, #locheading {
+            font-size: 2.5em;
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            font-style: oblique;
+        }
+        .menu th {
+            color: yellow;
+            font-size: larger;
+            font-style: oblique;
+            margin-bottom: 5px;
+        }
+        table {
+            padding: 1.5em;
+            width: 100%;
+        }
+        .menu tr {
+            color: rgb(227, 240, 240);
+            font-size: larger;
+            font-weight: bolder;
+            justify-content: center;
+            margin-top: 1px;
+            margin-bottom: 3px;
+            font-style:oblique;
+        }
+        .menu td:nth-child(1) {
+            flex: 1;
+            justify-self: left;
+        }
+        .menu td:nth-child(2) {
+            justify-self: right;
+        }
+        .maincourse {
+            grid-row: span 2;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color:#7a4010;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            margin-left:600px;
+        }
+        button:hover {
+            background-color: #ecece2;
+            color: black;
+        }
+    </style>
+</body>
+</html>

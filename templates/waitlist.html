@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waitlist Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/waitliststyle.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Thank You, <span id="customerName"></span>!</h2>
+        <p>You are <strong><span id="queuePosition"></span> in line</strong></p>
+        <div id="waitTimeDisplay">
+            Estimated Wait Time <span id="time"></span>
+        </div>
+        <!-- Circular wait time progress display -->
+        <svg class="circle" width="200" height="200">
+            <circle cx="100" cy="100" r="90" stroke="#e6e6e6" stroke-width="10" fill="none"></circle>
+            <circle id="progressCircle" cx="100" cy="100" r="90" stroke="#4caf50" stroke-width="10" fill="none" stroke-dasharray="565.48"></circle>
+            <text id="timeText" x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="36px" font-weight="bold" fill="#333">00:00</text>
+        </svg>
+        <div class="actions">
+            <button onclick="cancelWaitlist()">Cancel Waitlist</button>
+            <button onclick="checkMenu()">Check Menu </button>
+        </div>
+        <p class="notification-message">
+            You will receive a notification on your phone when your table is ready!
+        </p>
+    </div>
+    <script>
+        let countdownInterval;  // Declare the countdown interval globally
+        const customerName = new URLSearchParams(window.location.search).get('name') || 'Guest';
+        const queuePosition = new URLSearchParams(window.location.search).get('position') || 'unknown';
+
+        document.getElementById('customerName').textContent = customerName;
+        document.getElementById('queuePosition').textContent = queuePosition;
+
+        function cancelWaitlist() {
+            fetch('/cancel_waitlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: customerName })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    alert('Failed to cancel waitlist.');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function startCountdown(time) {
+            // Clear any previous interval before starting a new one
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            let countdown = time * 60;  // Convert minutes to seconds
+            const timeText = document.getElementById('timeText');
+
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(countdown / 60);
+                const seconds = countdown % 60;
+
+                // Update the time display
+                timeText.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                // Stop the countdown when it reaches zero
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    timeText.textContent = 'Ready!';
+                }
+
+                countdown--;
+            }, 1000);  // 1-second interval for countdown
+        }
+
+        function checkMenu() {
+            window.location.href = '/menu';  // Redirect to the menu page
+        }
+        // Start the initial countdown when the page loads
+        let initialWaitTime = parseInt(queuePosition) * 2;  // Assume 2 mins per position
+        startCountdown(initialWaitTime);
+    </script>
+</body>
+</html>

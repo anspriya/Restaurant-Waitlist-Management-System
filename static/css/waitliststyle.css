@@ -1,0 +1,81 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-image: url(../images/ig4.jpg); /* Check the correct path for your image */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center fixed;
+    backdrop-filter: blur(5px);
+    display: flex;
+    margin: 0;
+    padding:35px;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    background-color: white;
+    padding: 50px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.actions button {
+    padding: 10px;
+    margin: 10px 5px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    color: #faf5f5;
+    background-color: black;
+    font-size: 12px;
+}
+
+.actions button:hover {
+    background-color: #b38c0e;
+}
+
+.notification-message {
+    font-size: 14px;
+    color: #888;
+    margin-top: 20px;
+}
+
+.circle {
+    transform: rotate(360deg);
+}
+
+#progressCircle {
+    transition: stroke-dashoffset 1s linear;
+}
+
+#waitTimeDisplay {
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    text-align: center;
+    margin-top: 20px;
+    color: #333;
+}
+
+#timeText {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #333;
+}
+
