@@ -10,9 +10,9 @@ import time
 app = Flask(__name__)
 
 # Initialize Twilio client for SMS notifications
-account_sid = "AC82956768bd6d8b1b7e243f4477d18e43"
-auth_token = 'e7709d8c13f9ccb1f52116653d8f6893'
-twilio_phone = "+19013905770"
+account_sid = "AC9b4e54f943f1708a99b01e98f061cea1"
+auth_token = '3327fade029d83b127fd37f7dee74bf8'
+twilio_phone = "+17754179687"
 client = Client(account_sid, auth_token)
 
 # Queue to hold customer waitlist info
@@ -57,40 +57,71 @@ def index():
 def menu():
     return render_template('menu.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
 # Route to render the waitlist page with name and position
 @app.route('/join_waitlist')
 def waitlist_page():
-    name = request.args.get('name')
-    position = request.args.get('position')
-    return render_template('waitlist.html', name=name, position=position)
+    name = request.args.get('name', 'Guest')
+    position = request.args.get('position', '0')
+
+    try:
+        position_int = int(position)
+        wait_time = calculate_wait_time(position_int)
+    except ValueError:
+        position_int = 0
+        wait_time = 0
+
+    return render_template('waitlist.html', name=name, position=position_int, wait_time=wait_time)
 
 # Route to handle joining the waitlist
+
 @app.route('/waitlist', methods=['POST'])
 def join_waitlist():
     try:
         data = request.json
-        if not all(key in data for key in ('name', 'phone', 'party_size')):
-            logging.error('Missing information in the request')
+        name = data.get('name')
+        phone = data.get('phone')
+        party_size = data.get('party_size')
+
+        # Validate input
+        if not name or not phone or not party_size:
             return jsonify({'message': 'Missing information'}), 400
-        
+
+        # Check for existing customer by name or phone
+        for customer in waitlist:
+            if customer['name'] == name or customer['phone'] == phone:
+                return jsonify({'message': 'You are already in the waitlist!'}), 409
+
         position = len(waitlist) + 1
         wait_time = calculate_wait_time(position)
-        
+
         customer = {
-            'name': data['name'],
-            'phone': data['phone'],
-            'party_size': data['party_size'],
+            'name': name,
+            'phone': phone,
+            'party_size': party_size,
             'join_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'wait_time': wait_time
         }
-        
+
         waitlist.append(customer)
-        logging.debug(f"Added customer: {customer}")  # Log customer details for confirmation
-        return jsonify({'message': 'You have been added to the waitlist', 'position': position, 'name': customer['name'], 'wait_time': wait_time})
+        return jsonify({
+            'message': 'You have been added to the waitlist',
+            'position': position,
+            'name': customer['name'],
+            'wait_time': wait_time
+        })
 
     except Exception as e:
         logging.error(f"Error in join_waitlist: {str(e)}")
         return jsonify({'message': str(e)}), 500
+
     
 @app.route('/cancel_waitlist', methods=['POST'])
 def cancel_waitlist():

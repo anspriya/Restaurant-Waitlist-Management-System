@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Waitlist Status</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/waitliststyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/waitliststyle.css') }}" />
 </head>
 <body>
     <div class="container">
@@ -21,29 +21,40 @@
         </svg>
         <div class="actions">
             <button onclick="cancelWaitlist()">Cancel Waitlist</button>
-            <button onclick="checkMenu()">Check Menu </button>
+            <button onclick="checkMenu()">Check Menu</button>
+            <button onclick="backTo()">Back to home</button>
         </div>
         <p class="notification-message">
             You will receive a notification on your phone when your table is ready!
         </p>
     </div>
+
     <script>
-        let countdownInterval;  // Declare the countdown interval globally
+        let countdownInterval;  // global variable for the timer
+
+        // Get customer data from URL params or fallback
         const customerName = new URLSearchParams(window.location.search).get('name') || 'Guest';
         const queuePosition = new URLSearchParams(window.location.search).get('position') || 'unknown';
 
+        // Display customer data
         document.getElementById('customerName').textContent = customerName;
         document.getElementById('queuePosition').textContent = queuePosition;
+
+        // Save to localStorage so it can be reused later
+        localStorage.setItem('name', customerName);
+        localStorage.setItem('position', queuePosition);
 
         function cancelWaitlist() {
             fetch('/cancel_waitlist', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: customerName })
             }).then(response => {
                 if (response.ok) {
+                    // Clear saved data including timer
+                    localStorage.removeItem('name');
+                    localStorage.removeItem('position');
+                    localStorage.removeItem('remainingWaitTime');
                     window.location.href = '/';
                 } else {
                     alert('Failed to cancel waitlist.');
@@ -53,38 +64,55 @@
             });
         }
 
-        function startCountdown(time) {
-            // Clear any previous interval before starting a new one
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-
-            let countdown = time * 60;  // Convert minutes to seconds
-            const timeText = document.getElementById('timeText');
-
-            countdownInterval = setInterval(() => {
-                const minutes = Math.floor(countdown / 60);
-                const seconds = countdown % 60;
-
-                // Update the time display
-                timeText.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-                // Stop the countdown when it reaches zero
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    timeText.textContent = 'Ready!';
-                }
-
-                countdown--;
-            }, 1000);  // 1-second interval for countdown
-        }
-
         function checkMenu() {
             window.location.href = '/menu';  // Redirect to the menu page
         }
-        // Start the initial countdown when the page loads
-        let initialWaitTime = parseInt(queuePosition) * 2;  // Assume 2 mins per position
-        startCountdown(initialWaitTime);
+        function backTo() {
+            fetch('/force_notify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: customerName })
+            }).then(response => {
+                window.location.href = '/';
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        function startCountdown(timeInSeconds) {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            let countdown = timeInSeconds;
+            const timeText = document.getElementById('timeText');
+
+            countdownInterval = setInterval(() => {
+                if (countdown < 0) {
+                    clearInterval(countdownInterval);
+                    timeText.textContent = 'Ready!';
+                    localStorage.removeItem('remainingWaitTime');
+                    return;
+                }
+
+                const minutes = Math.floor(countdown / 60);
+                const seconds = countdown % 60;
+
+                timeText.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                // Save the remaining time every second
+                localStorage.setItem('remainingWaitTime', countdown);
+
+                countdown--;
+            }, 1000);
+        }
+
+        // On page load, check if there's a saved remaining wait time
+        const savedTime = localStorage.getItem('remainingWaitTime');
+        if (savedTime !== null) {
+            startCountdown(parseInt(savedTime));
+        } else {
+            // Calculate initial wait time (queuePosition * 2 minutes) converted to seconds
+            let initialWaitTime = parseInt(queuePosition) * 2 * 60;
+            startCountdown(initialWaitTime);
+        }
     </script>
 </body>
 </html>
