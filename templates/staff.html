@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Staff QR Scanner</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+    }
+     body {
+      background-image: url('../static/images/img2.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      backdrop-filter: blur(4px);
+      color: #0a0808;
+      padding: 40px;
+      text-align: center;
+    }
+
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color:white;
+    }
+
+    input[type="file"] {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      cursor: pointer;
+      display: block;
+      margin:0 auto;
+      color:rgb(236, 233, 233);
+    }
+
+    #customerInfo {
+      margin: 30px auto 0 auto;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      max-width: 500px;
+    }
+
+    #customerInfo p {
+      margin: 12px 0;
+      font-size: 16px;
+    }
+
+    #db-status {
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 5px;
+      background-color: #eee;
+      display: inline-block;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-right: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #assign-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #assign-btn:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    button:last-of-type {
+      background-color: #f0ad4e;
+      color: white;
+    }
+
+    button:hover:enabled {
+      filter: brightness(1.05);
+    }
+
+    .status-ok {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-waiting {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .status-error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    #keep-waiting-btn:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+  </style>
+</head>
+<body>
+  <h2>Upload QR Code</h2>
+  <input type="file" accept="image/*" onchange="handleFile(this)">
+  <div id="customerInfo" style="display:none; margin-top: 20px;">
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <p><strong>Party Size:</strong> <span id="partySize"></span></p>
+    <p><strong>Join Time:</strong> <span id="joinTime"></span></p>
+    <p><strong>Wait Time:</strong> <span id="waitTime"></span></p>
+    <p><strong>DB Status:</strong> <span id="db-status" style="padding:4px 8px; border-radius:5px; background:#eee;">Loading...</span></p>
+    <button id="assign-btn" onclick="updateStatus('Assigned')">✅ Assign Table</button>
+    <button id="keep-waiting-btn" onclick="updateStatus('Waiting')">⏳ Keep Waiting</button>
+  </div>
+<button onclick="goHome()" style="position: absolute; top: 20px; left: 20px; background-color: #3a4c5f; color: white;">
+  ← Back to Home
+</button>
+  <!-- Include jsQR -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script>
+    let currentEmail = "";
+    let currentCustomerData = {};
+
+    function handleFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+          if (code) {
+            try {
+              const info = JSON.parse(code.data);
+              console.log("QR Code parsed:", info);
+
+              currentCustomerData = info;
+              // Only get email from QR
+currentEmail = info.email || "";
+if (!currentEmail) {
+  alert("❌ Missing email in QR code. Cannot proceed.");
+  return;
+}
+
+// Fetch full customer data from backend
+fetch(`/get_customer_info?email=${encodeURIComponent(currentEmail)}`)
+  .then(res => {
+    if (!res.ok) throw new Error("Customer not found");
+    return res.json();
+  })
+  .then(data => {
+    document.getElementById("name").innerText = data.name || "N/A";
+    document.getElementById("email").innerText = currentEmail;
+    document.getElementById("partySize").innerText = data.party_size || "N/A";
+    document.getElementById("joinTime").innerText = data.join_time || "N/A";
+    document.getElementById("waitTime").innerText = data.wait_time || "N/A";
+
+    const statusDisplay = document.getElementById("db-status");
+const cleanedStatus = (data.status || "").trim().toLowerCase();
+
+if (cleanedStatus === "assigned") {
+  statusDisplay.innerText = "✅ Table Assigned";
+  statusDisplay.className = "status-ok";
+  document.getElementById("assign-btn").disabled = true;
+  document.getElementById("keep-waiting-btn").disabled = true;
+} else if (cleanedStatus === "waiting") {
+  statusDisplay.innerText = "⏳ Still Waiting";
+  statusDisplay.className = "status-waiting";
+} else {
+  statusDisplay.innerText = "❌ Unknown Status";
+  statusDisplay.className = "status-error";
+}
+document.getElementById("customerInfo").style.display = "block";
+
+  })
+  .catch(err => {
+    console.error("Error fetching customer data:", err);
+    alert("❌ Could not retrieve customer data.");
+  });
+
+
+            } catch (e) {
+              alert("Invalid QR content");
+              console.error("QR decode error", e);
+            }
+          } else {
+            alert("❌ No QR code found in image.");
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateStatus(status) {
+  if (!currentEmail) {
+    alert("Please scan a QR code first.");
+    return;
+  }
+
+  if (status === "Waiting") {
+    // Just update status to waiting, no table assignment
+    fetch('/update_status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentEmail, status: status })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to update status");
+        return res.json();
+      })
+      .then(data => {
+        alert("Customer will continue waiting.");
+        document.getElementById("db-status").innerText = "⏳ Still Waiting";
+        document.getElementById("db-status").className = "status-waiting";
+      })
+      .catch(err => {
+        console.error("Update error:", err);
+        alert("❌ Failed to update waiting status.");
+      });
+    return;
+  }
+
+  // ✅ Only here we assign table
+  fetch('/assign_table', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: currentEmail })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to assign table");
+      return res.json();
+    })
+    .then(data => {
+      alert(data.message || "Table assigned.");
+      document.getElementById("db-status").innerText = "✅ Table Assigned";
+      document.getElementById("db-status").className = "status-ok";
+      const assignBtn = document.getElementById("assign-btn");
+      const keepWaitingBtn = document.getElementById("keep-waiting-btn");
+  assignBtn.disabled = true;
+  keepWaitingBtn.disabled = true;
+      localStorage.setItem("assignedEmail", currentEmail);
+    })
+    .catch(err => {
+      console.error("Assign error:", err);
+      alert("❌ Failed to assign table.");
+    });
+}
+
+
+    function sendToBackend(parsedData) {
+  console.log("Sending to backend:", JSON.stringify(parsedData, null, 2));
+  fetch("/scan_qr", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(parsedData),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("QR submission failed");
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Backend Response:", data);
+      if (data.status === "assigned") {
+        const assignBtn = document.getElementById("assignBtn");
+        if (assignBtn) {
+          assignBtn.disabled = true;
+          assignBtn.innerText = "✅ Assigned";
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("Status error:", error);
+    });
+}
+
+function fetchUpdatedStatus(email, join_time) {
+  const url = `/check_status?email=${encodeURIComponent(email)}&join_time=${encodeURIComponent(join_time)}`;
+  fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error("Failed to fetch status");
+      return response.json();
+    })
+    .then(data => {
+      console.log("Status update:", data);
+      // ✅ You could update UI here based on `data.status`
+    })
+    .catch(error => {
+      console.error("Status error:", error);
+    });
+}
+
+function updateStatusDisplay(status) {
+  const statusBox = document.getElementById("statusBox");
+  const statusText = document.getElementById("statusText");
+
+  if (statusBox && statusText) {
+    if (status === "assigned") {
+      statusBox.textContent = "✅ Assigned";
+      statusBox.style.backgroundColor = "green";
+      statusText.textContent = "Your table is ready. Please proceed.";
+    } else {
+      statusBox.textContent = "❌ Not Found";
+      statusBox.style.backgroundColor = "red";
+      statusText.textContent = "You're not yet assigned. Please wait.";
+    }
+  }
+}
+// ✅ On page load, disable assign button if email is already assigned
+window.onload = () => {
+  const assignedEmail = localStorage.getItem("assignedEmail");
+  const assignBtn = document.getElementById("assign-btn");
+
+  if (assignedEmail && currentEmail === assignedEmail) {
+    assignBtn.disabled = true;
+    document.getElementById("db-status").innerText = "✅ Table Assigned";
+  }
+};
+function goHome() {
+  window.location.href = "/";  // or "/index" depending on your Flask route
+}
+
+
+
+  </script>
+</body>
+</html>

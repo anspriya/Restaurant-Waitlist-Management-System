@@ -238,9 +238,7 @@
     </style>
     <script>
          function backToWaitlist() {
-    const name = localStorage.getItem('name') || '';
-    const position = localStorage.getItem('position') || '0';
-    window.location.href = `/join_waitlist?name=${encodeURIComponent(name)}&position=${encodeURIComponent(position)}`;
+    window.location.href = '/';
 }
 
 

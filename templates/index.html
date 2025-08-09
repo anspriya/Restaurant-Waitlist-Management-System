@@ -15,12 +15,19 @@
                 <li><a href="/about">About</a></li>
                 <li><a href="/contact">Contact</a></li>
             </ul>
-
         </nav>
     </div>
+    <div style="text-align: end;">
+    <a href="/staff-login" class="scanner-link">
+        <button class="scanner-button">📷 Go to QR Scanner</button>
+    </a>
+</div>
+
+
     <div class="container">
         <h1>Welcome to Kasata!</h1>
         <p>Join the waitlist and get ready for your table.</p>
+
         <form id="waitlist-form">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required>
@@ -28,12 +35,12 @@
             <label for="party_size">Party Size:</label>
             <input type="number" id="party_size" name="party_size" required>
 
-            <label for="phone">Phone Number:</label>
-            <input type="tel" id="phone" name="phone" required pattern="\+[0-9]{1,3}[0-9]{10}">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" required>
 
             <button type="submit">Join Waitlist</button>
         </form>
-        
+
         <div id="response-message"></div>
 
         <div class="popup" id="popup" style="display: none;">
@@ -43,10 +50,10 @@
 
     <script>
         document.getElementById('waitlist-form').onsubmit = async function(event) {
-            event.preventDefault();  // Prevent the default form submission behavior
+            event.preventDefault();
 
             const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
             const party_size = document.getElementById('party_size').value;
 
             const response = await fetch('/waitlist', {
@@ -56,7 +63,7 @@
                 },
                 body: JSON.stringify({
                     name: name,
-                    phone: phone,
+                    email: email,
                     party_size: party_size
                 })
             });
@@ -64,8 +71,7 @@
             const result = await response.json();
 
             if (response.ok) {
-                // Redirect to the waitlist page with the user's name and position
-                window.location.href = `/join_waitlist?name=${encodeURIComponent(result.name)}&position=${result.position}`;
+                window.location.href = `/waitlist?name=${encodeURIComponent(result.name)}&position=${result.position}`;
             } else {
                 document.getElementById('response-message').innerHTML = `<p>Error: ${result.message}</p>`;
             }

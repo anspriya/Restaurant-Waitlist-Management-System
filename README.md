@@ -18,6 +18,6 @@ A web-based waitlist management system for restaurants that helps manage table r
 |------------|-------------|
 | Python + Flask | Backend framework |
 | HTML, CSS, JS  | Frontend |
-| Twilio API     | SMS notifications |
+| SMTP    | Mail notifications |
 | SQLite / In-memory Queue | Waitlist storage |
 
